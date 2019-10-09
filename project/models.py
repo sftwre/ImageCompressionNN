@@ -109,13 +109,20 @@ class Quantization(nn.Module):
         return (1 / pow(2, self.B - 1)) * math.ceil(pow(2, self.B - 1) * y)
 
 
+class Decoder(nn.Module):
 
+    def __init__(self):
+        super(Decoder, self).__init__()
 
+        self.model = nn.Sequential(nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1),
+                                   nn.LeakyReLU(0.2),
+                                   nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1),
+                                   nn.LeakyReLU(0.2),
+                                   nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1),
+                                   nn.LeakyReLU(0.2),
+                                   nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1),
+                                   nn.LeakyReLU(0.2))
 
-
-
-
-
-
-
-
+    def forward(self, img):
+        return self.model(img).numpy()
+    
