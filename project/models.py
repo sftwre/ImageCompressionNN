@@ -98,6 +98,15 @@ class FeatureExtractor(nn.Module):
         y = self.conv5(y)
 
         return y
+class Quantization(nn.Module):
+
+    B = 6
+
+    def __init__(self):
+        super(Quantization, self).__init__()
+
+    def forward(self, y):
+        return (1 / pow(2, self.B - 1)) * math.ceil(pow(2, self.B - 1) * y)
 
 
 
