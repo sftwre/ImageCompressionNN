@@ -1,16 +1,23 @@
 import torch.nn as nn
 import torch
+import math.ceil
 
-class FeatureExtractor(nn.Module):
+class Encoder(nn.Module):
 
     def __init__(self):
 
-        # decomposition layer
+        super(Encoder, self).__init__()
+
         self.scales = 6
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
-        self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
-        self.conv3_bn = nn.BatchNorm2d(64)
         self.alignment_scale = 32
+
+        # TODO put in sequential
+        # decomposition layer
+        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
+        self.relu1 = nn.LeakyReLU(0.2)
+        self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
+        self.relu2 = nn.LeakyReLU(0.2)
+        self.conv3_bn = nn.BatchNorm2d(64)
 
         # interscale alignment layer
         self.downsampleLayers = {
@@ -27,7 +34,9 @@ class FeatureExtractor(nn.Module):
 
         # output layer
         self.conv4 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
+        self.relu3 = nn.LeakyReLU(0.2)
         self.conv5 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
+        self.relu4 = nn.LeakyReLU(0.2)
 
         self.scale_factor = 0.5
         self.coef_maps = list()
@@ -35,8 +44,7 @@ class FeatureExtractor(nn.Module):
 
     """
         Performs pyramidal decomposition by extracting
-        coefficients from the input scale and
-        computing next scale.
+        coefficients from the input scale and computing next scale.
     """
     def decompose(self, xm):
 
@@ -77,12 +85,13 @@ class FeatureExtractor(nn.Module):
 
         return y
 
-
-
+    """
+        :param x Image that will undergo pyramidal decomposition
+        :returns compressed image represented as Tensor
+    """
     def forward(self, x):
 
         xm = x
-
 
         # perform pyramidal decomposition
         for scale in range(self.scales):
@@ -97,7 +106,10 @@ class FeatureExtractor(nn.Module):
         y = self.conv4(y)
         y = self.conv5(y)
 
-        return y
+        # compressed image
+        return y.numpy()
+
+
 class Quantization(nn.Module):
 
     B = 6
