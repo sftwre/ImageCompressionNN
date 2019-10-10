@@ -1,0 +1,7 @@
+name: ml
+
+dependencies:
+  - numpy
+  - pytorch
+  - scipy
+  - wget
