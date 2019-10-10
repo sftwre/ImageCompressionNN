@@ -12,8 +12,9 @@ parser.add_argument('--test_path', help='path to testing dataset')
 parser.add_argument('--batch_size', type=int, default=4)
 parser.add_argument('--num_train', type=int, help='number of training images', default=750)
 parser.add_argument('--num_test', type=int, help='number of validation images', default=250)
-parser.add_argument('--test_indices_path', help='paths to val indices')
-parser.add_argument('--train_indices_path', help='paths to train indices')
+# parser.add_argument('--test_indices_path', help='paths to val indices')
+# parser.add_argument('--train_indices_path', help='paths to train indices')
+parser.add_argument('--weights_file', default="network_weights")
 parser.add_argument('--lr', default=1e-4, type=float, help='learning rate')
 parser.add_argument('--num_epoch', default=80, type=int, help='number of traing epochs')
 args = parser.parse_args()
@@ -73,7 +74,6 @@ def test(dataloader, epoch):
 
     global best_loss
     if loss < best_loss:
-        torch.save(net.state_dict(), "../checkpoints/ckpt.pt")
         best_loss = loss.item()
 
     net.train()
@@ -87,3 +87,7 @@ def main():
     # train model
     for i in range(args.num_epoch):
         train(train_loader, i)
+
+
+    # save weights file
+    torch.save(net.state_dict(), args.weight_file)
