@@ -1,0 +1,17 @@
+universe = vanilla
+Initialdir = /u/isaac3/ml_workspace/CS395T-proj3/
+Executable = /lusr/bin/bash
+Arguments = run.sh
++Group   = "GRAD"
++Project = "INSTRUCTIONAL"
++ProjectDescription = "Course project for CS395T Deep Learning Seminar"
+Requirements = TARGET.GPUSlot
+getenv = True
+request_GPUs = 1
++GPUJob = true
+Log = condor_ours_sandy.log
+Error = condor_ours_sandy.err
+Output = condor_ours_sandy.out
+Notification = complete
+Notify_user = isaac.buitrago.pro@gmail.com
+Queue 1
