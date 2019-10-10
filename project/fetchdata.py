@@ -40,5 +40,4 @@ def main():
         batch += num_images
 
 
-if __name__ == "__main__":
-    main()
+main()
