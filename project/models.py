@@ -2,6 +2,23 @@ import torch.nn as nn
 import torch
 import math.ceil
 
+
+class Net(nn.Module):
+
+    def __init__(self):
+        super(Net, self).__init__()
+
+        self.encoder = Encoder()
+        self.decoder = Decoder()
+
+    def forward(self, img, encode=True):
+
+        if encode:
+            return self.encoder(img)
+        else:
+            return self.decoder(img)
+
+
 class Encoder(nn.Module):
 
     def __init__(self):
@@ -42,11 +59,14 @@ class Encoder(nn.Module):
         self.coef_maps = list()
 
 
-    """
+    def decompose(self, xm):
+        """
         Performs pyramidal decomposition by extracting
         coefficients from the input scale and computing next scale.
-    """
-    def decompose(self, xm):
+
+        :param xm:
+        :return:
+        """
 
         # downsample to next scale
         xm1 = nn.functional.interpolate(xm, mode='bilinear', size=self.scale_factor)
@@ -126,15 +146,13 @@ class Decoder(nn.Module):
     def __init__(self):
         super(Decoder, self).__init__()
 
-        self.model = nn.Sequential(nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1),
-                                   nn.LeakyReLU(0.2),
-                                   nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1),
-                                   nn.LeakyReLU(0.2),
-                                   nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1),
-                                   nn.LeakyReLU(0.2),
-                                   nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1),
-                                   nn.LeakyReLU(0.2))
+        self.layer1 = nn.Sequential(nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1), nn.LeakyReLU(0.2))
+        self.layer2 = nn.Sequential(nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1), nn.LeakyReLU(0.2))
+        self.layer3 = nn.Sequential(nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1), nn.LeakyReLU(0.2))
+        self.layer4 = nn.Sequential(nn.ConvTranspose2d(64, 64, kernel_size=3, stride=8, padding=1), nn.LeakyReLU(0.2))
+
 
     def forward(self, img):
-        return self.model(img).numpy()
+
+        return self.model(img)
     
