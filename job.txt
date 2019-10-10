@@ -1,5 +1,5 @@
 universe = vanilla
-Initialdir = /u/isaac3/ml_workspace/CS395T-proj3/
+Initialdir = /u/isaac3/ml_workspace/ImageCompressionNN/
 Executable = /lusr/bin/bash
 Arguments = run.sh
 +Group   = "GRAD"
