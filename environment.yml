@@ -3,6 +3,7 @@ name: ml
 dependencies:
   - numpy
   - pytorch
+  - pandas
   - scipy
   - wget
   - pillow
