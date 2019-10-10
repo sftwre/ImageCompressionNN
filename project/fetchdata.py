@@ -4,6 +4,8 @@ import argparse
 import multiprocessing as mp
 
 
+dataset_size = 1000
+
 def fetch_data(urls, save_path):
    """
    :param urls: list of urls to images 
@@ -20,19 +22,22 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--csv", type=str, required=True)
     parser.add_argument("--save_path", type=str, required=True)
-    parser.add_argument("--num_images", type=int, default=250)
 
     args = parser.parse_args()
 
     # create thread pool
-    pool = mp.Pool(mp.cpu_count())
+    num_cpus = mp.cpu_count()
+
+    pool = mp.Pool(num_cpus)
 
     # read image urls from csv
     df = pd.read_csv(args.csv)
 
     # download num_images for each process
     batch = 0
-    num_images = args.num_images
+
+    # compute number of images each process should download
+    num_images = dataset_size / num_cpus
     image_urls = list(df.TIFF)
 
     for p in range(mp.cpu_count()):
