@@ -17,7 +17,9 @@ def fetch_data(urls):
    :return: 
    """
    # download images
-   for url in urls: wget.download(url, out=save_path)
+   for i, url in enumerate(urls):
+       print(f"Downloading image {i + 1} from {url}")
+       wget.download(url, out=save_path)
 
 
 
