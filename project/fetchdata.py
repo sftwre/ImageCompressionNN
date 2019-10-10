@@ -3,10 +3,13 @@ import wget
 import argparse
 import multiprocessing as mp
 
+def download_kodak():
 
-dataset_size = 1000
+    url = "http://r0k.us/graphics/kodak/thumbs/kodim01t.jpg"
+    pass
 
-def fetch_data(urls, save_path):
+
+def fetch_data(urls):
    """
    :param urls: list of urls to images 
    :param save_path: path to place downloaded images
@@ -17,32 +20,26 @@ def fetch_data(urls, save_path):
    for url in urls: wget.download(url, out=save_path)
 
 
-def main():
 
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--csv", type=str, required=True)
-    parser.add_argument("--save_path", type=str, required=True)
+parser = argparse.ArgumentParser()
 
-    args = parser.parse_args()
+parser.add_argument("--csv", type=str, required=True)
+parser.add_argument("--save_path", type=str, required=True)
 
-    # create thread pool
-    num_cpus = mp.cpu_count()
+args = parser.parse_args()
 
-    pool = mp.Pool(num_cpus)
+save_path = args.save_path
 
-    # read image urls from csv
-    df = pd.read_csv(args.csv)
+# create thread pool
+num_processes = 10
+dataset_size = 1000
 
-    # download num_images for each process
-    batch = 0
+pool = mp.Pool(processes=num_processes)
 
-    # compute number of images each process should download
-    num_images = dataset_size / num_cpus
-    image_urls = list(df.TIFF)
+# read image urls from csv
+df = pd.read_csv(args.csv)
 
-    for p in range(mp.cpu_count()):
-        pool.apply_async(fetch_data, args=(image_urls[batch: batch + num_images], args.save_path))
-        batch += num_images
+# compute number of images each process should download
+chunksize = dataset_size / num_processes
 
-
-main()
+pool.map(fetch_data, list(df.TIFF), chunksize=chunksize)
