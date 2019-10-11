@@ -1,9 +1,9 @@
 import argparse
-import sys
 import torch
-from dataloader import Raise1K
+from dataloader import *
 from models import Net
 import torch.nn
+from torch.utils.data import DataLoader
 
 # parse command line args
 parser = argparse.ArgumentParser()
@@ -12,11 +12,9 @@ parser.add_argument('--test_path', help='path to testing dataset')
 parser.add_argument('--batch_size', type=int, default=30)
 parser.add_argument('--num_train', type=int, help='number of training images', default=750)
 parser.add_argument('--num_test', type=int, help='number of validation images', default=250)
-# parser.add_argument('--test_indices_path', help='paths to val indices')
-# parser.add_argument('--train_indices_path', help='paths to train indices')
 parser.add_argument('--weights_file', default="network_weights")
 parser.add_argument('--lr', default=1e-4, type=float, help='learning rate')
-parser.add_argument('--num_epoch', default=80, type=int, help='number of traing epochs')
+parser.add_argument('--num_epoch', default=80, type=int, help='number of training epochs')
 args = parser.parse_args()
 
 # run model on multiple GPU's
@@ -38,7 +36,13 @@ def train(dataloader, epoch):
         img = img.cuda()
 
         optimizer.zero_grad()
+
+        # encode image
         doc = net(img)
+
+        # decode image
+        doc = net(doc, encode=False)
+
         loss = torch.mean(torch.abs(img - doc))
         loss.backward()
         optimizer.step()
@@ -81,12 +85,16 @@ def test(dataloader, epoch):
 
 def main():
 
-    data = Raise1K(args.train_path, args.test_path)
-    train_loader, val_loader = data.data_loader(8, args.batch_size, args.num_train, args.num_test)
+    print("===> Loading Data")
+    train_data = get_training_set(args.train_path)
+    print("===> Constructing DataLoader")
 
+    dataloader = DataLoader(dataset=train_data, num_workers=4, batch_size=args.batch_size, shuffle=True)
+
+    print("Training")
     # train model
     for i in range(args.num_epoch):
-        train(train_loader, i)
+        train(dataloader, i)
 
 
     # save weights file

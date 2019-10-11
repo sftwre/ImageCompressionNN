@@ -1,6 +1,8 @@
 import os
+import torch
 from torch.utils.data import DataLoader, SubsetRandomSampler
-from torchvision import transforms, datasets
+from torchvision import transforms
+from PIL import Image
 import numpy as np
 
 
@@ -18,48 +20,37 @@ TEST_TRANSFORMS_256 = transforms.Compose([
     transforms.Normalize([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 ])
 
-"""
-    Dataset used for training and testing
-"""
-class Raise1K:
+def is_image_file(img):
+    return any(img.endswith(ext) for ext in [".png", ".jpg", ".jpeg", ".JPEG"])
 
-    def __init__(self, train_path, test_path):
+def load_image(path):
+    return Image.open(path).convert('RGB')
 
-        self.train_path = train_path
-        self.test_path = test_path
-        self.transform_train = TRAIN_TRANSFORMS_256
-        self.transform_test = TEST_TRANSFORMS_256
+def get_training_set(train_path):
+    return DatasetFromFolder(train_path)
 
+class DatasetFromFolder(torch.utils.data.Dataset):
+    """
+        Loads dataset from a given directory
+    """
 
-    def data_loader(self, workers, batch_size, num_train, num_test):
+    def __init__(self, train_path):
+        super(DatasetFromFolder, self).__init__()
+        self.image_filenames = [os.path.join(train_path, img) for img in os.listdir(train_path) if is_image_file(img)]
 
+    def __getitem__(self, item):
 
-        print("===> Preparing Dataset")
-        transform_train, transform_test = self.transform_train, self.transform_test
+        img = load_image(self.image_filenames[item])
+        target = img.copy()
 
-        trainset = datasets.ImageFolder(self.train_path, transform_train)
-        testset = datasets.ImageFolder(self.test_path, transform_test)
+        img = TRAIN_TRANSFORMS_256(img)
+        target = TRAIN_TRANSFORMS_256(img)
 
+        return img, target
 
-        test_indices = list(range(250)) # size of test set
-        np.random.shuffle(test_indices)
-        # np.save(test_indices_path, test_indices)
-
-
-        train_indices = list(range(len(trainset)))
-        np.random.shuffle(train_indices)
-        # np.save(train_indices_path, train_indices)
-
-        train_indices, valid_indices = train_indices[:num_train], test_indices[200:(200 + num_test)]
-        train_sampler = SubsetRandomSampler(train_indices)
-        val_sampler = SubsetRandomSampler(valid_indices)
-
-        train_loader = DataLoader(trainset, batch_size=batch_size, num_workers=workers, sampler=train_sampler)
-        test_loader = DataLoader(testset, batch_size=3 * batch_size, sampler=val_sampler,
-                                 num_workers=workers)
-
-        return train_loader, test_loader
-
+    def __len__(self):
+        return len(self.image_filenames)
+        
 
 
 
