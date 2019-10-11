@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 parser = argparse.ArgumentParser()
 parser.add_argument('--train_path', help='path to training dataset')
 parser.add_argument('--test_path', help='path to testing dataset')
-parser.add_argument('--batch_size', type=int, default=30)
+parser.add_argument('--batch_size', type=int, default=10)
 parser.add_argument('--num_train', type=int, help='number of training images', default=750)
 parser.add_argument('--num_test', type=int, help='number of validation images', default=250)
 parser.add_argument('--weights_file', default="network_weights")
