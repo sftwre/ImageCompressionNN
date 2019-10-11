@@ -32,33 +32,24 @@ class Raise1K:
         self.transform_test = TEST_TRANSFORMS_256\
 
 
-    def data_loader(self, workers, batch_size, num_train, num_test, train_indices_path, test_indices_path):
+    def data_loader(self, workers, batch_size, num_train, num_test):
 
 
-        print("===> Preparing Raise1K")
+        print("===> Preparing Dataset")
         transform_train, transform_test = self.transform_train, self.transform_test
 
         trainset = datasets.ImageFolder(self.train_path, transform_train)
         testset = datasets.ImageFolder(self.test_path, transform_test)
 
 
-        if os.path.exists(test_indices_path):
-            print("Using stored test indices")
-            test_indices = np.load(test_indices_path)
-        else:
-            test_indices = list(range(250)) # size of test set
-            np.random.shuffle(test_indices)
-            np.save(test_indices_path, test_indices)
+        test_indices = list(range(250)) # size of test set
+        np.random.shuffle(test_indices)
+        # np.save(test_indices_path, test_indices)
 
-        if os.path.exists(train_indices_path):
-            print("Using stored train indices")
-            train_indices = np.load(train_indices_path)
-        else:
-            print(len(trainset))
 
-            train_indices = list(range(len(trainset)))
-            np.random.shuffle(train_indices)
-            np.save(train_indices_path, train_indices)
+        train_indices = list(range(len(trainset)))
+        np.random.shuffle(train_indices)
+        # np.save(train_indices_path, train_indices)
 
         train_indices, valid_indices = train_indices[:num_train], test_indices[200:(200 + num_test)]
         train_sampler = SubsetRandomSampler(train_indices)

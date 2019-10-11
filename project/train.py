@@ -9,7 +9,7 @@ import torch.nn
 parser = argparse.ArgumentParser()
 parser.add_argument('--train_path', help='path to training dataset')
 parser.add_argument('--test_path', help='path to testing dataset')
-parser.add_argument('--batch_size', type=int, default=4)
+parser.add_argument('--batch_size', type=int, default=30)
 parser.add_argument('--num_train', type=int, help='number of training images', default=750)
 parser.add_argument('--num_test', type=int, help='number of validation images', default=250)
 # parser.add_argument('--test_indices_path', help='paths to val indices')
@@ -91,3 +91,6 @@ def main():
 
     # save weights file
     torch.save(net.state_dict(), args.weight_file)
+
+
+main()
