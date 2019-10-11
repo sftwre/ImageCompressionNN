@@ -82,7 +82,7 @@ def test(dataloader, epoch):
 def main():
 
     data = Raise1K(args.train_path, args.test_path)
-    train_loader, val_loader = data.data_loader(8, args.batch_size, args.num_train, args.num_test, args.train_path, args.test_path)
+    train_loader, val_loader = data.data_loader(8, args.batch_size, args.num_train, args.num_test)
 
     # train model
     for i in range(args.num_epoch):
