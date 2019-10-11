@@ -118,7 +118,7 @@ class Encoder(nn.Module):
         """
 
         xm = x
-        dimensions = np.array([256, 256])
+        dimensions = np.array([256.0, 256.0])
 
         # perform pyramidal decomposition
         for scale in range(self.scales):
