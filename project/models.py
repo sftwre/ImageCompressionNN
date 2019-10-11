@@ -103,7 +103,7 @@ class Encoder(nn.Module):
             if coef_scale > self.alignment_scale:
                 conv = self.downsampleLayers[coef_scale[0] / align_scale[0]]
             else:
-                conv = self.upsampleLayersLayers[align_scale[0] / coef_scale[0]]
+                conv = self.upsampleLayers[align_scale[0] / coef_scale[0]]
 
             # align coefficients
             y += conv(coef)
