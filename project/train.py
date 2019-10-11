@@ -31,7 +31,7 @@ def train(dataloader, epoch):
     :return:
     """
 
-    for idx, data in enumerate(dataloader):
+    for idx, data in dataloader:
         img = data
         img = img.cuda()
 
@@ -62,9 +62,13 @@ def test(dataloader, epoch):
     net.eval()
     loss = 0
 
-    for idx, data in enumerate(dataloader):
+    for idx, data in dataloader:
 
         img = data
+
+        # limit to test set
+        if idx > args.num_test:
+            break
 
         with torch.no_grad():
             img = img.cuda()
