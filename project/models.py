@@ -1,6 +1,6 @@
 import torch.nn as nn
 import torch
-import math.ceil
+import math
 
 
 class Net(nn.Module):
