@@ -28,7 +28,7 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
 
         self.scales = 6
-        self.alignment_scale = 32
+        self.alignment_scale = (32, 32)
 
         # decomposition layer
         self.decompLayer = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
@@ -85,8 +85,8 @@ class Encoder(nn.Module):
             and alignment_scale then passes coef through appropriate
             conv layer. coef_map must contain a tensor for each scale.
 
-            :returns sum of coef as a tensor
-           """
+            :returns Tensor for sum of coefficients
+        """
         # len(self.coef_maps) == self.scales
         print(len(self.coef_maps))
 
@@ -95,13 +95,17 @@ class Encoder(nn.Module):
 
         for coef in self.coef_maps:
 
-            print(f"coef is {type(coef)}")
+            # dimensions of coef tensor and desired alignment
+            align_scale = self.alignment_scale
+            coef_scale = tuple(coef.size())
 
-            if coef.size > self.alignment_scale:
-                conv = self.downsampleLayers[coef.size / self.alignment_scale]
+            # determine which conv to pass img through
+            if coef_scale > self.alignment_scale:
+                conv = self.downsampleLayers[coef_scale[0] / align_scale[0]]
             else:
-                conv = self.upsampleLayersLayers[self.alignment_scale / self.alignment_scale]
+                conv = self.upsampleLayersLayers[align_scale[0] / coef_scale[0]]
 
+            # align coefficients
             y += conv(coef)
 
         return y
