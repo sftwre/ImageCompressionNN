@@ -122,7 +122,7 @@ class Encoder(nn.Module):
 
         # perform pyramidal decomposition
         for scale in range(self.scales):
-            x, xm = self.decompose(xm, tuple(dimensions))
+            x, xm = self.decompose(xm, tuple(map(lambda x: int(x), dimensions)))
             self.coef_maps.append(x)
             dimensions *= self.scale_factor
 
