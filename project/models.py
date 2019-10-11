@@ -86,8 +86,8 @@ class Encoder(nn.Module):
 
             :returns sum of coef as a tensor
            """
-
-        assert(len(self.coef_maps) == self.scales)
+        # len(self.coef_maps) == self.scales
+        print(len(self.coef_maps))
 
         # sum of coefficient tensors
         y = torch.zeros(size=(32, 32, 64), dtype=torch.float32)
