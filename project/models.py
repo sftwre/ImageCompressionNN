@@ -1,4 +1,5 @@
 import torch.nn as nn
+import numpy as np
 import torch
 import math
 
@@ -59,18 +60,18 @@ class Encoder(nn.Module):
         self.coef_maps = list()
 
 
-    def decompose(self, xm):
+    def decompose(self, xm, size):
         """
         Performs pyramidal decomposition by extracting
         coefficients from the input scale and computing next scale.
 
-        :param xm:
-        :return:
+        :param xm: Tensor for image
+        :param size: tuple of height and width desired in interpolation
+        :return: Tensor for coefficient and Tensor for downsampled image
         """
 
         # downsample to next scale
-        xm1 = nn.functional.interpolate(xm, mode='bilinear', scale_factor=self.scale_factor)
-
+        xm1 = nn.functional.interpolate(xm, mode='bilinear', size=size)
         xm = self.decompLayer(xm)
 
         # return coefficiant and downsampled image
@@ -94,6 +95,8 @@ class Encoder(nn.Module):
 
         for coef in self.coef_maps:
 
+            print(f"coef is {type(coef)}")
+
             if coef.size > self.alignment_scale:
                 conv = self.downsampleLayers[coef.size / self.alignment_scale]
             else:
@@ -106,16 +109,19 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         """
-            :param x Image that will undergo pyramidal decomposition
-            :returns compressed image represented as Tensor
+            :param x Tensor for Image that will be compressed
+            :returns Tensor for compressed image
         """
 
         xm = x
+        dimensions = np.array([256, 256])
 
         # perform pyramidal decomposition
         for scale in range(self.scales):
-            x, xm = self.decompose(xm)
+            x, xm = self.decompose(xm, tuple(dimensions))
             self.coef_maps.append(x)
+            dimensions *= self.scale_factor
+
 
         # perform interscale alignment
         y = self.align()
