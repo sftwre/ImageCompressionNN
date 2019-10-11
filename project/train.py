@@ -31,7 +31,7 @@ def train(dataloader, epoch):
     :return:
     """
 
-    for idx, data in dataloader:
+    for idx, data in enumerate(dataloader):
         img = data
         img = img.cuda()
 
@@ -62,7 +62,7 @@ def test(dataloader, epoch):
     net.eval()
     loss = 0
 
-    for idx, data in dataloader:
+    for idx, data in enumerate(dataloader):
 
         img = data
 
