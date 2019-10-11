@@ -19,7 +19,8 @@ def encode(img, bottleneck):
     return: a numpy array less <= bottleneck bytes
     """
 
-    img / 255.0
+    # normalize pixel values
+    img = img / 255.0
 
     # conv layer wants 4 dimensions, batch of one image
     img = TEST_TRANSFORMS_256(img).unsqueeze(0)
@@ -45,6 +46,6 @@ def decode(x, bottleneck):
     # need to unormalize an image to visualize it or pass it to the grader
 
     with torch.no_grad():
-        returned = decoder.forward(img)
+        res = decoder.forward(img)
 
-    return returned
+    return res

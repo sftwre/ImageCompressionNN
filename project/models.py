@@ -21,6 +21,7 @@ class Net(nn.Module):
 
 class Encoder(nn.Module):
 
+
     def __init__(self):
 
         super(Encoder, self).__init__()
@@ -28,20 +29,19 @@ class Encoder(nn.Module):
         self.scales = 6
         self.alignment_scale = 32
 
-        # TODO put in sequential
         # decomposition layer
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1)
-        self.relu1 = nn.LeakyReLU(0.2)
-        self.conv2 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
-        self.relu2 = nn.LeakyReLU(0.2)
-        self.conv3_bn = nn.BatchNorm2d(64)
+        self.decompLayer = nn.Sequential(nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1),
+                                         nn.LeakyReLU(0.2),
+                                         nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+                                         nn.LeakyReLU(0.2),
+                                         nn.BatchNorm2d(64))
 
         # interscale alignment layer
         self.downsampleLayers = {
-        8: nn.Conv2d(64, 64, kernel_size=3, stride=8, padding=1),
-        4: nn.Conv2d(64, 64, kernel_size=3, stride=4, padding=1),
-        2: nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
-        1: nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
+            8: nn.Conv2d(64, 64, kernel_size=3, stride=8, padding=1),
+            4: nn.Conv2d(64, 64, kernel_size=3, stride=4, padding=1),
+            2: nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
+            1: nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
         }
 
         self.upsampleLayers = {
@@ -50,10 +50,10 @@ class Encoder(nn.Module):
         }
 
         # output layer
-        self.conv4 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
-        self.relu3 = nn.LeakyReLU(0.2)
-        self.conv5 = nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1)
-        self.relu4 = nn.LeakyReLU(0.2)
+        self.outputLayer = nn.Sequential(nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+                                         nn.LeakyReLU(0.2),
+                                         nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+                                         nn.LeakyReLU(0.2))
 
         self.scale_factor = 0.5
         self.coef_maps = list()
@@ -69,25 +69,23 @@ class Encoder(nn.Module):
         """
 
         # downsample to next scale
-        xm1 = nn.functional.interpolate(xm, mode='bilinear', size=self.scale_factor)
+        xm1 = nn.functional.interpolate(xm, mode='bilinear', scale_factor=self.scale_factor)
 
-        # extract coefficients
-        xm = self.conv1(xm)
-        xm = self.conv2(xm)
-        xm = self.conv3_bn(xm)
+        xm = self.decompLayer(xm)
 
         # return coefficiant and downsampled image
         return xm, xm1
 
-    """
-        Performs interscale alignment of features in the
-        coef_map. Computes difference between size of coef tensor
-        and alignment_scale then passes coef through appropriate
-        conv layer. coef_map must contain a tensor for each scale.
-        
-        :returns sum of coef as a tensor
-    """
+
     def align(self):
+        """
+            Performs interscale alignment of features in the
+            coef_map. Computes difference between size of coef tensor
+            and alignment_scale then passes coef through appropriate
+            conv layer. coef_map must contain a tensor for each scale.
+
+            :returns sum of coef as a tensor
+           """
 
         assert(len(self.coef_maps) == self.scales)
 
@@ -105,29 +103,28 @@ class Encoder(nn.Module):
 
         return y
 
-    """
-        :param x Image that will undergo pyramidal decomposition
-        :returns compressed image represented as Tensor
-    """
+
     def forward(self, x):
+        """
+            :param x Image that will undergo pyramidal decomposition
+            :returns compressed image represented as Tensor
+        """
 
         xm = x
 
         # perform pyramidal decomposition
         for scale in range(self.scales):
             x, xm = self.decompose(xm)
-            print(xm.size)
             self.coef_maps.append(x)
 
         # perform interscale alignment
         y = self.align()
 
         # convolve aligned features
-        y = self.conv4(y)
-        y = self.conv5(y)
+        y = self.outputLayer(y)
 
         # compressed image
-        return y.numpy()
+        return y
 
 
 class Quantization(nn.Module):
@@ -153,6 +150,20 @@ class Decoder(nn.Module):
 
 
     def forward(self, img):
+        """
 
-        return self.model(img)
+        :param img: 32x32 compressed image
+        :return: 256X256 reconstructed image
+        """
+
+
+        img = self.layer1(img)
+        img = nn.functional.interpolate(img, mode="bilinear", size=(64, 64, 64))
+        img = self.layer2(img)
+        img = nn.functional.interpolate(img, mode="bilinear", size=(128, 128, 64))
+        img = self.layer3(img)
+        img = nn.functional.interpolate(img, mode="bilinear", size=(256, 256, 64))
+        img = self.layer4(img)
+
+        return img
     

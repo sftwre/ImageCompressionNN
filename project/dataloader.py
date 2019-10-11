@@ -4,7 +4,6 @@ from torchvision import transforms, datasets
 import numpy as np
 
 
-# TODO get clarification on this
 TRAIN_TRANSFORMS_256 = transforms.Compose([
     transforms.RandomResizedCrop(256),
     transforms.RandomHorizontalFlip(),
@@ -29,7 +28,7 @@ class Raise1K:
         self.train_path = train_path
         self.test_path = test_path
         self.transform_train = TRAIN_TRANSFORMS_256
-        self.transform_test = TEST_TRANSFORMS_256\
+        self.transform_test = TEST_TRANSFORMS_256
 
 
     def data_loader(self, workers, batch_size, num_train, num_test):
