@@ -91,7 +91,8 @@ def test(dataloader, epoch):
 def main():
 
     print("===> Loading Data")
-    train_data = os.path.join(os.getcwd(), get_training_set(args.train_path))
+    train_path = os.path.join(os.getcwd(), args.train_path)
+    train_data = get_training_set(train_path)
     print("===> Constructing DataLoader")
 
     dataloader = DataLoader(dataset=train_data, num_workers=4, batch_size=args.batch_size, shuffle=True)
