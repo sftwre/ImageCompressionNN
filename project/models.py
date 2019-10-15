@@ -101,9 +101,9 @@ class Encoder(nn.Module):
 
             # determine which conv to pass img through
             if coef_scale > self.alignment_scale:
-                conv = self.downsampleLayers[coef_scale[0] / align_scale[0]]
+                conv = self.downsampleLayers[int(coef_scale[0] / align_scale[0])]
             else:
-                conv = self.upsampleLayers[align_scale[0] / coef_scale[0]]
+                conv = self.upsampleLayers[int(align_scale[0] / coef_scale[0])]
 
             # align coefficients
             y += conv(coef)
