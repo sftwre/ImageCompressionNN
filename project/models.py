@@ -127,6 +127,7 @@ class Encoder(nn.Module):
             x, xm = self.decompose(xm, tuple(map(lambda x: int(x), dimensions)))
             self.coef_maps.append(x)
             dimensions *= self.scale_factor
+            print(dimensions)
 
 
         # perform interscale alignment
